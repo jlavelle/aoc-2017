@@ -12,6 +12,7 @@ digits = reverse . unfoldr go
   go 0 = Nothing
   go i = Just (i `mod` 10, i `div` 10)
 
+-- TODO: can we use alaf here or not?
 gsolve :: Integral a => ([a] -> Int -> a) -> a -> a
 gsolve f (digits -> ds) = getSum $ ifoldMap go ds
  where
