@@ -18,11 +18,18 @@ import Data.List (sortBy)
 import Data.Functor.Foldable (para, ListF(..))
 
 -- using NonEmpty so that fromJust is not partial
-solve1 :: [NonEmpty Int] -> Int
-solve1 = alaf Sum foldMap (fromJust . go)
+-- keeping this here as an example of using alaf
+solve1' :: [NonEmpty Int] -> Int
+solve1' = alaf Sum foldMap (fromJust . go)
  where
   go = F.fold $ (liftA2 . liftA2) (-) F.maximum F.minimum
 
+solve1 :: [NonEmpty Int] -> Int
+solve1 = sum . fmap (fromJust . go)
+ where
+  go = F.fold $ (liftA2 . liftA2) (-) F.maximum F.minimum
+
+-- The problem doesn't require handling edge cases, but we're doing it anyway
 solve2 :: [[Int]] -> Maybe Int
 solve2 = fmap getSum . foldMap go
  where
