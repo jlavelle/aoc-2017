@@ -33,14 +33,25 @@ jump f p = (\z -> p' { position = position p' + z }) <$> readPos p
 unfoldProgram :: (Int -> Int) -> Program -> [Program]
 unfoldProgram f = unfoldr (\p -> (p,) <$> jump f p)
 
+-- This is no faster than the unfoldr version
+iterProgram :: (Int -> Int) -> Program -> Int
+iterProgram f p = go (Just p, -1)
+ where
+  go (Nothing, acc) = acc
+  go (Just  x, acc) = acc `seq` go (jump f x, acc + 1)
+
+rule1 :: Int -> Int
+rule1 x = x + 1
+
+rule2 :: Int -> Int
+rule2 x | x >= 3    = x - 1
+        | otherwise = x + 1
+
 solve1 :: Program -> Int
-solve1 = length . unfoldProgram (+1)
+solve1 = length . unfoldProgram rule1
 
 solve2 :: Program -> Int
-solve2 = length . unfoldProgram r
- where
-  r j | j >= 3    = j - 1
-      | otherwise = j + 1
+solve2 = length . unfoldProgram rule2
 
 tests :: [Bool]
 tests =
