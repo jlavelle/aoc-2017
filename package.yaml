@@ -27,6 +27,8 @@ dependencies:
 - lens
 - foldl
 - recursion-schemes
+- vector
+- comonad
 
 ghc-options:
 - -Wall
