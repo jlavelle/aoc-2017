@@ -10,7 +10,6 @@ import Data.Vector (Vector, (!?))
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as MV
 import Data.List (unfoldr)
-import Control.Applicative (liftA2)
 
 data Program = Program
   { jumps    :: Vector Int
@@ -23,27 +22,34 @@ initProgram v = Program v 0
 readPos :: Program -> Maybe Int
 readPos (Program js p) = js !? p
 
-incJump :: Program -> Program
-incJump (Program js p) = Program (V.modify (\v -> MV.modify v (+1) p) js) p
+updateJump :: (Int -> Int) -> Program -> Program
+updateJump f (Program js p) = Program (V.modify (\v -> MV.modify v f p) js) p
 
-jump :: Program -> Maybe Program
-jump p = (\z -> p' { position = position p' + z }) <$> readPos p
+jump :: (Int -> Int) -> Program -> Maybe Program
+jump f p = (\z -> p' { position = position p' + z }) <$> readPos p
  where
-  p' = incJump p
+  p' = updateJump f p
 
-unfoldProgram :: Program -> [Program]
-unfoldProgram = unfoldr (\p -> (p,) <$> jump p)
+unfoldProgram :: (Int -> Int) -> Program -> [Program]
+unfoldProgram f = unfoldr (\p -> (p,) <$> jump f p)
 
 solve1 :: Program -> Int
-solve1 = length . unfoldProgram
+solve1 = length . unfoldProgram (+1)
+
+solve2 :: Program -> Int
+solve2 = length . unfoldProgram r
+ where
+  r j | j >= 3    = j - 1
+      | otherwise = j + 1
 
 tests :: [Bool]
 tests =
   [ solve1 (Program (V.fromList [0, 3, 0, 1, -3]) 0) == 5
+  , solve2 (Program (V.fromList [0, 3, 0, 1, -3]) 0) == 10
   ]
 
 solveIO :: (Program -> Int) -> IO Int
-solveIO f = solve1 . either error id . parse <$> T.readFile "./input/Day5.txt"
+solveIO f = f . either error id . parse <$> T.readFile "./input/Day5.txt"
 
 parse :: Text -> Either String Program
 parse = fmap initProgram . traverse (fmap fst . T.signed T.decimal) . V.fromList . T.lines
