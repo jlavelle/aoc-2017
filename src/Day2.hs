@@ -17,13 +17,13 @@ import Data.Maybe (fromJust)
 import Data.List (sortBy)
 import Data.Functor.Foldable (para, ListF(..))
 
--- using NonEmpty so that fromJust is not partial
 -- keeping this here as an example of using alaf
-solve1' :: [NonEmpty Int] -> Int
-solve1' = alaf Sum foldMap (fromJust . go)
+solve1' :: (Foldable f, Foldable g, Num a, Ord a) => f (g a) -> a
+solve1' = alaf Sum foldMap (maybe 0 id . go)
  where
   go = F.fold $ (liftA2 . liftA2) (-) F.maximum F.minimum
 
+-- using NonEmpty so that fromJust is not partial
 solve1 :: [NonEmpty Int] -> Int
 solve1 = sum . fmap (fromJust . go)
  where
