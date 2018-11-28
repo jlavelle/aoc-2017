@@ -13,7 +13,6 @@ import qualified Data.Text.Read as T
 import Data.Vector (Vector, (!?))
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as MV
-import Control.Lens.Indexed (FunctorWithIndex(..))
 import Data.List (unfoldr)
 
 data Program f = Program
@@ -31,13 +30,6 @@ readPos (Program js p) = js !? p
 
 updateJump :: (Int -> Int) -> Program Vector -> Program Vector
 updateJump f (Program js p) = Program (V.modify (\v -> MV.modify v f p) js) p
-
--- This consumes an excessive amount of memory with vectors
-updateJump' :: FunctorWithIndex Int f => (Int -> Int) -> Program f -> Program f
-updateJump' f (Program js p) = Program (imap g js) p
- where
-  g i x | i == p    = f x
-        | otherwise = x
 
 jump :: (Int -> Int) -> Program Vector -> Maybe (Program Vector)
 jump f p = (\z -> p' { position = position p' + z }) <$> readPos p
