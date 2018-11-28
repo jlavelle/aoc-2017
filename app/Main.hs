@@ -1,4 +1,6 @@
 module Main where
 
+import Day5
+
 main :: IO ()
-main = putStrLn "Implement me please"
+main = solveIO solve2 >>= print
