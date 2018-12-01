@@ -120,7 +120,7 @@ solve1' x = absMoves $ fromJust $ M.lookup x $ layer l
   members 0 = [1]
   members n = rotate (length l - 1) l
    where
-    l = [(2 * (n - 1) + 1) ^ 2 + 1..((2 * n + 1) ^ 2)]
+    l = [(2 * n - 1) ^ 2 + 1..(2 * n + 1) ^ 2]
 
   points :: Int -> [(Int, Int)]
   points n = nub $ fold
