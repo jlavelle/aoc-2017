@@ -22,8 +22,10 @@ data Program f = Program
 
 deriving instance (forall a. Show a => Show (f a)) => Show (Program f)
 
-initProgram :: Vector Int -> Program Vector
+initProgram :: f Int -> Program f
 initProgram v = Program v 0
+
+-- Using immutable vectors for this has way too much overhead
 
 readPos :: Program Vector -> Maybe Int
 readPos (Program js p) = js !? p
@@ -41,10 +43,10 @@ unfoldProgram f = unfoldr (\p -> (p,) <$> jump f p)
 
 -- This is no faster than the unfoldr version
 iterProgram :: (Int -> Int) -> Program Vector -> Int
-iterProgram f p = go (Just p, -1)
+iterProgram f p = go (Just p) (-1)
  where
-  go (Nothing, acc) = acc
-  go (Just  x, acc) = acc `seq` go (jump f x, acc + 1)
+  go Nothing acc = acc
+  go (Just x) acc = acc `seq` go (jump f x) (acc + 1)
 
 rule1 :: Int -> Int
 rule1 x = x + 1
@@ -58,6 +60,12 @@ solve1 = length . unfoldProgram rule1
 
 solve2 :: Program Vector -> Int
 solve2 = length . unfoldProgram rule2
+
+solve1' :: Program Vector -> Int
+solve1' = iterProgram rule1
+
+solve2' :: Program Vector -> Int
+solve2' = iterProgram rule2
 
 tests :: [Bool]
 tests =
