@@ -5,6 +5,13 @@ module Day1 where
 import Control.Lens (ifoldMap)
 import Data.Monoid (Sum(..))
 import Data.List (unfoldr)
+import Data.Functor.Foldable (ana, ListF(..))
+
+digits' :: Integral a => a -> [a]
+digits' = ana go
+ where
+  go 0 = Nil
+  go i = Cons (i `mod` 10) (i `div` 10)
 
 digits :: Integral a => a -> [a]
 digits = unfoldr go
